@@ -59,7 +59,7 @@ async def get_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail={
                 "success": False,
-                "message": "Не выполнен вход в аккаунт",
+                "message": "Аккаунт не найден",
                 "error": "USER_NOT_FOUND"
             }
         )

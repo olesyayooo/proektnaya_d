@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr, model_validator
+from pydantic import BaseModel, Field, EmailStr, model_serializer, ConfigDict
 from enum import Enum
 
 class UserRegister(BaseModel):
@@ -17,6 +17,16 @@ class UserRole(str, Enum):
     librarian = "librarian"
 
 class UserOutMe(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    reader_card: int | None = None
+
+    @model_serializer(mode="wrap")
+    def serialize(self, handler):
+        data = handler(self)
+        if self.role != UserRole.reader:
+            data.pop("reader_card", None)
+        return data
+
     name: str = Field(min_length=1, max_length=50)
     email: EmailStr
     role: UserRole
