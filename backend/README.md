@@ -64,3 +64,7 @@ Errors use `detail: {success: false, message, error}`:
 - 401 without authentication; 403 `LIBRARIAN_REQUIRED` for readers.
 
 Existing tables support these actions without another migration.
+
+## Integration with 1C
+
+`POST /integration/purchases` imports purchased editions and physical copies. See [local setup, JSON contract and retry behavior](src/integration/README.md). Example: [1c_purchase.json](examples/1c_purchase.json). Requires the `X-Integration-Key` header matching `INTEGRATION_API_KEY` in `.env`, without a user token. The new `purchase_imports` table is created at startup or via `migrations/002_purchase_imports.sql`.

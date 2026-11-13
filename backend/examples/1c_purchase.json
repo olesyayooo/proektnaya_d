@@ -1,0 +1,19 @@
+{
+  "document_id": "purchase-demo-001",
+  "books": [
+    {
+      "title": "Война и мир",
+      "author": "Лев Толстой",
+      "publication_year": 2023,
+      "publisher": "Эксмо",
+      "quantity": 3
+    },
+    {
+      "title": "Война и мир",
+      "author": "Лев Толстой",
+      "publication_year": 2025,
+      "publisher": "Эксмо",
+      "quantity": 2
+    }
+  ]
+}

@@ -26,6 +26,9 @@ class AsyncSessionAdapter:
     def __init__(self, session):
         self.session = session
 
+    def get_bind(self):
+        return self.session.get_bind()
+
     def add(self, obj):
         self.session.add(obj)
 
