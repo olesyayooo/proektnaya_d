@@ -10,7 +10,7 @@ from sqlalchemy.exc import IntegrityError
 from fastapi.testclient import TestClient
 from main import app
 from src.database import Base, get_db
-from src.auth.dependencies import get_current_user
+from src.auth.dependencies import get_current_user, get_optional_user
 from src.auth.models import UsersModel
 from src.auth.repository import AuthRepository
 from src.auth.schemas import UserOutMe, UserRole
@@ -25,6 +25,18 @@ from src.loans.repository import LoansRepository
 class AsyncSessionAdapter:
     def __init__(self, session):
         self.session = session
+
+    def add(self, obj):
+        self.session.add(obj)
+
+    async def flush(self):
+        self.session.flush()
+
+    async def commit(self):
+        self.session.commit()
+
+    async def rollback(self):
+        self.session.rollback()
 
     async def execute(self, query):
         return self.session.execute(query)
@@ -102,6 +114,7 @@ class LibraryTests(unittest.IsolatedAsyncioTestCase):
         client = TestClient(app)
         for user in [self.reader, self.librarian]:
             app.dependency_overrides[get_current_user] = lambda: user
+            app.dependency_overrides[get_optional_user] = lambda: user
             response = client.get(f'/books/{self.book.id}')
             self.assertEqual(response.status_code, 200, response.text)
             data = response.json()['data']
@@ -113,7 +126,14 @@ class LibraryTests(unittest.IsolatedAsyncioTestCase):
             me = client.get('/auth/me').json()['data']
             self.assertEqual('reader_card' in me, user.role == UserRole.reader)
         app.dependency_overrides.pop(get_current_user)
-        self.assertEqual(client.get('/books').status_code, 401)
+        app.dependency_overrides.pop(get_optional_user)
+        self.assertEqual(client.get('/books').status_code, 200)
+        self.assertEqual(client.get('/auth/me').status_code, 401)
+        for headers in [{}, {'Authorization': 'Bearer invalid-token'}]:
+            response = client.get(f'/books/{self.book.id}', headers=headers)
+            self.assertEqual(response.status_code, 200, response.text)
+            self.assertNotIn('active_loans', response.json()['data'])
+            self.assertEqual(client.get('/books', headers=headers).status_code, 200)
 
     async def test_card_conflict_retry_and_other_errors(self):
         user = UsersModel(name='New', email='new@example.com', hashed_password='hash')

@@ -1,6 +1,6 @@
 from uuid import UUID
 from pydantic import BaseModel
-from src.loans.schemas import LoanOut
+from src.loans.schemas import LoanHistoryOut
 
 
 class BookOut(BaseModel):
@@ -13,4 +13,4 @@ class BookOut(BaseModel):
 
 
 class LibrarianBookOut(BookOut):
-    active_loans: list[LoanOut]
+    active_loans: list[LoanHistoryOut]

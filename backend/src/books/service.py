@@ -3,6 +3,7 @@ from src.auth.schemas import UserRole
 from src.books.repository import BooksRepository
 from src.books.schemas import BookOut, LibrarianBookOut
 from src.loans.repository import LoansRepository
+from src.loans.service import loan_details
 
 
 def book_data(book, available):
@@ -33,9 +34,9 @@ class BooksService:
                 }
             )
         data = book_data(*row)
-        if current_user.role == UserRole.librarian:
+        if current_user is not None and current_user.role == UserRole.librarian:
             loans = await self.loans_repo.get_active_for_book(book_id, session)
-            book = LibrarianBookOut(**data, active_loans=loans)
+            book = LibrarianBookOut(**data, active_loans=[loan_details(*loan) for loan in loans])
         else:
             book = BookOut(**data)
         return {"success": True, "data": book}

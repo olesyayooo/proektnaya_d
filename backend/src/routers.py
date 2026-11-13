@@ -8,3 +8,9 @@ router.include_router(auth_router)
 from src.books.router import books_router
 
 router.include_router(books_router)
+
+from src.readers.router import readers_router
+from src.loans.router import loans_router
+
+router.include_router(readers_router)
+router.include_router(loans_router)

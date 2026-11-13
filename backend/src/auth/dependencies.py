@@ -82,6 +82,21 @@ async def get_current_user(
     current_user = await get_user(credentials, session)
     return current_user
 
+async def get_optional_user(
+    credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
+    session: SessionDep
+):
+    if not credentials:
+        return None
+    try:
+        optional_user = await get_user(credentials, session)
+        return optional_user
+    except HTTPException:
+        return None
+
+
+OptionalAuthDep = Annotated[UsersModel | None, Depends(get_optional_user)]
+
 AuthDep = Annotated[UsersModel, Depends(get_current_user)]
 
 def get_auth_repository():
@@ -93,3 +108,20 @@ def get_auth_service(
     return AuthService(auth_repo)
 
 AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]
+
+
+async def get_librarian(current_user: AuthDep):
+    from src.auth.schemas import UserRole
+    if current_user.role != UserRole.librarian:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "success": False,
+                "message": "Доступ разрешён только библиотекарю",
+                "error": "LIBRARIAN_REQUIRED"
+            }
+        )
+    return current_user
+
+
+LibrarianDep = Annotated[UsersModel, Depends(get_librarian)]
