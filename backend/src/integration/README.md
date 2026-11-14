@@ -1,11 +1,14 @@
 # Приём поступлений из 1С
 
+Код модулей 1С, состав метаданных, пошаговая настройка Конфигуратора macOS и
+проверка PostgreSQL: [интеграция 1С 8.5](../../integration_1c/README.md).
+
 `POST /integration/purchases`, JSON UTF-8, авторизация `X-Integration-Key: <ключ интеграции>`.
 
 Для локального запуска из папки `backend`:
 
 ```sh
-.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+.venv/bin/python -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
 ```
 
 При запуске создаётся новая таблица `purchase_imports` (в ней хранится результат загрузки каждого документа). Для ручного создания есть `migrations/002_purchase_imports.sql`.
