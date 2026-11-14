@@ -1,3 +1,4 @@
+from enum import Enum
 from uuid import UUID
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -34,3 +35,9 @@ class PurchaseImportOut(BaseModel):
     created_books: int
     created_copies: int
     books: list[ImportedBook]
+
+
+class OverdueReportStatus(str, Enum):
+    active = "active"
+    returned = "returned"
+    all = "all"

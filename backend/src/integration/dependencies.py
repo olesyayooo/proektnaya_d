@@ -5,6 +5,8 @@ from secrets import compare_digest
 from src.configs import settings
 from src.integration.repository import IntegrationRepository
 from src.integration.service import IntegrationService
+from src.loans.dependencies import get_loans_service
+from src.loans.service import LoansService
 
 
 def get_integration_repository():
@@ -13,8 +15,9 @@ def get_integration_repository():
 
 def get_integration_service(
     integration_repo: IntegrationRepository = Depends(get_integration_repository),
+    loans_service: LoansService = Depends(get_loans_service),
 ):
-    return IntegrationService(integration_repo)
+    return IntegrationService(integration_repo, loans_service)
 
 
 IntegrationServiceDep = Annotated[IntegrationService, Depends(get_integration_service)]

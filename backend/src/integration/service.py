@@ -2,12 +2,15 @@ import hashlib
 import json
 from fastapi import HTTPException, status
 from src.integration.repository import IntegrationRepository
-from src.integration.schemas import PurchaseImportOut
+from src.integration.schemas import PurchaseImportOut, OverdueReportStatus
+from src.loans.service import LoansService
+from src.loans.schemas import LoanStatus
 
 
 class IntegrationService:
-    def __init__(self, integration_repo: IntegrationRepository):
+    def __init__(self, integration_repo: IntegrationRepository, loans_service: LoansService):
         self.integration_repo = integration_repo
+        self.loans_service = loans_service
 
     async def import_purchase(self, data, session):
         # Normalize line order and combine duplicate positions for retry comparison.
@@ -55,3 +58,10 @@ class IntegrationService:
         except Exception:
             await session.rollback()
             raise
+
+
+    async def get_overdue_report(self, session, report_status, skip, limit):
+        loan_status = None if report_status == OverdueReportStatus.all else LoanStatus(report_status.value)
+        return await self.loans_service.get_history(
+            session, loan_status=loan_status, overdue=True, skip=skip, limit=limit
+        )

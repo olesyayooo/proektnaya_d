@@ -68,3 +68,5 @@ Existing tables support these actions without another migration.
 ## Integration with 1C
 
 `POST /integration/purchases` imports purchased editions and physical copies. See [local setup, JSON contract and retry behavior](src/integration/README.md). Example: [1c_purchase.json](examples/1c_purchase.json). Requires the `X-Integration-Key` header matching `INTEGRATION_API_KEY` in `.env`, without a user token. The new `purchase_imports` table is created at startup or via `migrations/002_purchase_imports.sql`.
+
+`GET /integration/overdue-report` exports overdue loans to 1C using the same integration key. Optional `status=active` (default), `returned`, `all`; paginated with `skip` and `limit` (default 100, max 1000). Includes reader/book details and overdue days; no database migration needed.
